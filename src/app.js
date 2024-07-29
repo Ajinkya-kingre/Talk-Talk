@@ -16,7 +16,7 @@ app.use(
 );
 
 app.get("/", (req, res) => {
-  res.send("totptep")
+  res.send("don't fuck with me!! I am pookie ")
 })
 
 app.use(express.json({ limit: "16kb" }));
