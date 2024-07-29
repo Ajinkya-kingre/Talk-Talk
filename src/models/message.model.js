@@ -13,7 +13,7 @@ const messageSchema = new Schema(
     },
     chatId: {
       type: Schema.Types.ObjectId(),
-      ref: "ChatID",
+      ref: "Chat",
       require: true,
     },
   },

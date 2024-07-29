@@ -31,4 +31,4 @@ const chatIdSchema = new Schema(
   { timestamps: true }
 );
 
-export const ChatID = mongoose.model("ChatID", chatIdSchema);
+export const Chat = mongoose.model("Chat", chatIdSchema);
