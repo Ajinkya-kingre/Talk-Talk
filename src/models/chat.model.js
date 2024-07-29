@@ -27,6 +27,10 @@ const chatIdSchema = new Schema(
       type: Schema.Types.ObjectId(),
       ref: "Message",
     },
+    isGroup : {
+      type : Boolean,
+      default : false
+    }
   },
   { timestamps: true }
 );
