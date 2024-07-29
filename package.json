@@ -1,0 +1,11 @@
+{
+  "name": "talk-talk",
+  "version": "1.0.0",
+  "description": "A real time chat app using MERN and socket.io",
+  "main": "index.js",
+  "scripts": {
+    "test": "node.js index.js"
+  },
+  "author": "Ajinkya Kingre",
+  "license": "ISC"
+}
