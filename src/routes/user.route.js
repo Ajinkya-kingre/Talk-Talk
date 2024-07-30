@@ -1,6 +1,6 @@
 import {Router} from "express"
 import { upload } from "../middlewares/multer.middleware.js";
-import { register } from "../controllers/user.controller.js";
+import { login, register } from "../controllers/user.controller.js";
 
 
 
@@ -11,6 +11,8 @@ router.route('/register').post(
     upload.single("avatar"),
     register
 )
+
+router.route('/login').post(login);
 
 
 export default router;
