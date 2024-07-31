@@ -25,10 +25,11 @@ const uploadCloudinary = async (localFilePath) => {
       resource_type: "auto",
     });
     
-
+    //TODO: unlink the file from local server
     return response;
   } catch (error) {
     console.error("Error uploading to Cloudinary:", error);
+    //TODO: unlink the file from local server
     return null;
   }
 };

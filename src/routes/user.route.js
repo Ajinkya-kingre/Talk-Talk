@@ -1,25 +1,13 @@
-import {Router} from "express"
+import { Router } from "express";
 import { upload } from "../middlewares/multer.middleware.js";
-import { login, register } from "../controllers/user.controller.js";
-
-
+import { login, logut, register } from "../controllers/user.controller.js";
+import { verifyJwt } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
+router.route("/register").post(upload.single("avatar"), register);
 
-router.route('/register').post(
-    upload.single("avatar"),
-    register
-)
-
-router.route('/login').post(login);
-
+router.route("/login").post(login);
+router.route("/logout").post(verifyJwt, logut);
 
 export default router;
-
-
-
-
-
-
-
