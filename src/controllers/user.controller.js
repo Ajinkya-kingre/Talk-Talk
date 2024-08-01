@@ -3,17 +3,17 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadCloudinary } from "../utils/cloudinary.js";
-import { verifyJwt } from "../middlewares/auth.middleware.js";
+import { getUsers } from "../utils/getUsers.js";
 
 const generateAccessAndRefreshToken = async (userId) => {
   try {
     const user = await User.findById(userId);
-    console.log(userId);
+    // console.log(userId);
 
     const accessToken = await user.generateAccessToken();
-    console.log("accessToken - ", accessToken);
+    // console.log("accessToken - ", accessToken);
     const refreshToken = await user.generateRefreshToken();
-    console.log("refreshToken -", refreshToken);
+    // console.log("refreshToken -", refreshToken);
 
     user.refreshToken = refreshToken;
     await user.save({ validateBeforeSave: false });
@@ -141,7 +141,7 @@ const login = asyncHandler(async (req, res) => {
 
 const logut = asyncHandler(async (req, res) => {
   const user = await User.findByIdAndUpdate(
-    req.user_id,
+    req.user._id,
     {
       $unset: { refreshToken: 1 }, //this removes the field from document
     },
@@ -157,9 +157,24 @@ const logut = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .clearCookie("accessToken" , options)
+    .clearCookie("accessToken", options)
     .clearCookie("refreshToken", options)
     .json(new ApiResponse(200, {}, "user is successfully Log-Out"));
 });
 
-export { register, login, logut };
+const fetchAllUser = asyncHandler(async (req, res) => {
+  const allUsers = await getUsers();
+
+  if(!allUsers){
+    throw new ApiError(500, "couldn't fetch the users!!")
+  }
+
+  return res
+  .status(200)
+  .json(new ApiResponse(200, allUsers, "Users fetched successfully!!"))
+
+});
+
+
+
+export { register, login, logut, fetchAllUser };
