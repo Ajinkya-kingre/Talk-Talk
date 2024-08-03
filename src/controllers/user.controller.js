@@ -111,7 +111,7 @@ const login = asyncHandler(async (req, res) => {
   const isPasswordValid = await user.isPasswordCorrect(password);
 
   if (!isPasswordValid) {
-    throw new ApiError(400, "password is incorrect11");
+    throw new ApiError(400, "password is incorrect !!");
   }
 
   const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
@@ -199,7 +199,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     user._id
   );
 
-  const updatedUser  = await User.findById(user._id)
+  // const updatedUser  = await User.findById(user._id)
 
   const options = {
     httpOnly: true,
@@ -218,11 +218,78 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
           accessToken,
           refreshToken,
           // "old-refresh-token" : user?.refreshToken,
-          // "new-refresh-token" : updatedUser?.refreshToken 
+          // "new-refresh-token" : updatedUser?.refreshToken
         },
         "Access token refreshed"
       )
     );
 });
 
-export { register, login, logut, fetchAllUser, refreshAccessToken };
+const changePassword = asyncHandler(async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+
+  const user = await User.findById(req.user?._id);
+
+  const isOldPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+
+  if (!isOldPasswordCorrect) {
+    throw new ApiError(400, "Old-password does not matched!!");
+  }
+
+  user.password = newPassword;
+
+  user.save({ validateBeforeSave: false });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "password change successfully !!"));
+});
+
+const getCurrUser = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user?._id).select(
+    "-password -refreshToken"
+  );
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user, "User fetched successfully !!"));
+});
+
+const updateAccountDetails = asyncHandler(async (req, res) => {
+  const { fullName, email, username } = req.body;
+
+  if (!fullName && !email && !username) {
+    throw new ApiError(404, "all fields are required !!");
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        fullName,
+        email,
+        username,
+      },
+    },
+    {
+      new: true,
+    }
+  ).select("-password -refreshToken");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user, "Updated the User's details successfully !!"));
+});
+
+
+
+export {
+  register,
+  login,
+  logut,
+  fetchAllUser,
+  refreshAccessToken,
+  changePassword,
+  getCurrUser,
+  updateAccountDetails,
+};

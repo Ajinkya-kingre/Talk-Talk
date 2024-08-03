@@ -1,11 +1,14 @@
 import { Router } from "express";
 import { upload } from "../middlewares/multer.middleware.js";
 import {
+  changePassword,
   fetchAllUser,
+  getCurrUser,
   login,
   logut,
   refreshAccessToken,
   register,
+  updateAccountDetails,
 } from "../controllers/user.controller.js";
 import { verifyJwt } from "../middlewares/auth.middleware.js";
 
@@ -19,5 +22,8 @@ router.route("/refresh-token").post(refreshAccessToken);
 
 // User manangement routes
 router.route("/fetch-users").get(verifyJwt, fetchAllUser);
+router.route("/change-password").post(verifyJwt, changePassword);
+router.route("/get-current-user").get(verifyJwt, getCurrUser);
+router.route("/update-account").patch(verifyJwt, updateAccountDetails);
 
 export default router;
