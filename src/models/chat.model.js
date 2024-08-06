@@ -13,17 +13,16 @@ const chatIdSchema = new Schema(
     },
     members: [
       {
-        type: Schema.Types.ObjectId(),
+        type: Schema.Types.ObjectId,
         ref: "User",
       },
     ],
     isAdmin: {
-      type: Schema.Types.ObjectId(),
+      type: Schema.Types.ObjectId,
       ref: "User",
-      required: true,
     },
     latestMessage: {
-      type: Schema.Types.ObjectId(),
+      type: Schema.Types.ObjectId,
       ref: "Message",
     },
     isGroup: {
