@@ -255,6 +255,8 @@ const getCurrUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, user, "User fetched successfully !!"));
 });
 
+// TODO: TEST BELOW API'S ON POSTMAN !!
+
 const updateAccountDetails = asyncHandler(async (req, res) => {
   const { fullName, email, username } = req.body;
 
@@ -278,10 +280,49 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, user, "Updated the User's details successfully !!"));
+    .json(
+      new ApiResponse(200, user, "Updated the User's details successfully !!")
+    );
 });
 
+const changeAvatar = asyncHandler(async (req, res) => {
+  // req.user
+  // unlinksync avatar
+  // req.file.path
+  // upload on cloudinary
+  // avatar.url
+  // get user
+  // updata the database
 
+  const avatarLocalPath = req.file?.path;
+
+  if (!avatarLocalPath) {
+    throw new ApiError(400, "file path not found!!");
+  }
+
+  const avatar = await uploadCloudinary(avatarLocalPath);
+
+  if (!avatar.url) {
+    throw new ApiError(400, "Error file uploading file on cloudinary !!");
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user?._id,
+
+    {
+      $set: {
+        avatar: avatar.url,
+      },
+    },
+    {
+      new: true,
+    }
+  ).select("-password -refreshToken");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(2000, user, "Avatar change successfully !!"));
+});
 
 export {
   register,
@@ -292,4 +333,5 @@ export {
   changePassword,
   getCurrUser,
   updateAccountDetails,
+  changeAvatar
 };

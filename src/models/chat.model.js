@@ -10,7 +10,6 @@ const chatIdSchema = new Schema(
     avatar: {
       type: String,
       //TODO:  Default : "put a default pic for avatar",
-      required: true,
     },
     members: [
       {
@@ -27,10 +26,10 @@ const chatIdSchema = new Schema(
       type: Schema.Types.ObjectId(),
       ref: "Message",
     },
-    isGroup : {
-      type : Boolean,
-      default : false
-    }
+    isGroup: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
