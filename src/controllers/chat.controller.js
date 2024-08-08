@@ -140,7 +140,7 @@ const renameChat = asyncHandler(async (req, res) => {
   // if not give the error
   // if yes $set the name to newName
 
-  const { chatId, newName } = req.bod;
+  const { chatId, newName } = req.body;
 
   if (!chatId && !newName) {
     throw new ApiError(404, "chatId and newName is required!!");
