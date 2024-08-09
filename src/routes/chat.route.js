@@ -13,12 +13,9 @@ const router = Router();
 
 router.route("/access-chat").post(verifyJwt, accessChat);
 router.route("/renameChat").post(verifyJwt, renameChat);
-
-
-//TODO: make a request in POSTMAN for this route
 router.route("/fetch-chat").get(verifyJwt, fetchAllChats);
 router.route("/create-group").post(verifyJwt, createGroup);
-router.route("/add-members").post(verifyJwt, addToGroup);
+router.route("/add-member").post(verifyJwt, addToGroup);
 router.route("/remove-member").post(verifyJwt, removeFronGroup);
 
 export default router;

@@ -69,70 +69,6 @@ const accessChat = asyncHandler(async (req, res) => {
   }
 });
 
-// TODO: Test this controller on POSTMAN
-const fetchAllChats = asyncHandler(async (req, res) => {
-  const chats = await Chat.find({
-    members: { $elemMatch: { $eq: req.user._id } },
-  })
-    .populate("members")
-    .populate("latestMessage")
-    .populate("isAdmin")
-    .sort({ updateAt: -1 });
-
-  if (!chats) {
-    throw new ApiError(400, "can't fetch the chats!!");
-  }
-
-  const finalChats = await User.populate(chats, {
-    path: "latestMessage.sender",
-    select: "username fullName avatar email",
-  });
-
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(
-        200,
-        finalChats,
-        "successfully fetched the users previous chats!!"
-      )
-    );
-});
-
-// TODO: Test this controller on POSTMAN
-const createGroup = asyncHandler(async (req, res) => {
-  const { groupName, members } = req.body;
-
-  if (!groupName || !members) {
-    throw new ApiError(
-      400,
-      "groupname and members are required you dumbADSS !!"
-    );
-  }
-
-  const parsedMembers = JSON.parse(members);
-
-  if (parsedMembers.length < 2) {
-    throw new ApiError(400, "Group should contain more thatn 2 members");
-  }
-  parsedMembers.push(req.user._id);
-
-  const group = await Chat.create({
-    name: groupName,
-    members: [parsedMembers],
-    isAdmin: req.user._id,
-    isGroup: true,
-  });
-
-  const createdGroup = await Chat.find({ _id: group._id })
-    .populate("members", "-password", "-refreshToken")
-    .populate("isAdmin", "-password", "-refreshToken");
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, createdGroup, "Created Group Successfully!!"));
-});
-
 const renameChat = asyncHandler(async (req, res) => {
   // get the chat._id and newName
   // check if chat._id and newName is not empty
@@ -172,6 +108,70 @@ const renameChat = asyncHandler(async (req, res) => {
     );
 });
 
+const fetchAllChats = asyncHandler(async (req, res) => {
+  const chats = await Chat.find({
+    members: { $elemMatch: { $eq: req.user._id } },
+  })
+    .populate("members", "-password -refreshToken")
+    .populate("latestMessage")
+    .populate("isAdmin")
+    .sort({ updateAt: -1 });
+
+  if (!chats) {
+    throw new ApiError(400, "can't fetch the chats!!");
+  }
+
+  const finalChats = await User.populate(chats, {
+    path: "latestMessage.sender",
+    select: "username fullName avatar email",
+  });
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        finalChats,
+        "successfully fetched the users previous chats!!"
+      )
+    );
+});
+
+const createGroup = asyncHandler(async (req, res) => {
+  const { groupName, members } = req.body;
+
+  if (!groupName || !Array.isArray(members)) {
+    throw new ApiError(
+      400,
+      "groupname and members are required you dumbADSS !!"
+    );
+  }
+
+  if (members.length < 1) {
+    throw new ApiError(400, "Group should contain more thatn 2 members");
+  }
+  const parsedMembers = [...members, req.user._id];
+
+  const group = await Chat.create({
+    name: groupName,
+    members: parsedMembers,
+    isAdmin: req.user._id,
+    isGroup: true,
+  });
+
+  if (!group) {
+    throw new ApiError(404, "failed to create group!!");
+  }
+
+  const createdGroup = await Chat.find({ _id: group._id })
+    .populate("members", "-password -refreshToken")
+    .populate("isAdmin", "-password -refreshToken");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, createdGroup, "Created Group Successfully!!"));
+});
+
 const addToGroup = asyncHandler(async (req, res) => {
   const { userId, chatId } = req.body;
 
@@ -182,9 +182,9 @@ const addToGroup = asyncHandler(async (req, res) => {
   const isChatExists = await Chat.findOne({ _id: chatId });
 
   if (!isChatExists) {
-    throw new ApiError(404,"Chat doesn't exist!!");
+    throw new ApiError(404, "Chat doesn't exist!!");
   } else if (isChatExists.members.includes(userId)) {
-    throw new ApiError(404,"member already exist!!");
+    throw new ApiError(404, "member already exist!!");
   } else {
     const chat = await Chat.findByIdAndUpdate(
       chatId,
@@ -198,31 +198,32 @@ const addToGroup = asyncHandler(async (req, res) => {
       .populate("isAdmin", "-password -refreshToken")
       .populate("members", "-password -refreshToken");
 
-      return res
+    return res
       .status(200)
-      .json(new ApiResponse(200, chat, "User is successfully added in the group!!"))
+      .json(
+        new ApiResponse(200, chat, "User is successfully added in the group!!")
+      );
   }
 });
 
-const  removeFronGroup = asyncHandler(async (req, res) => {
-
+const removeFronGroup = asyncHandler(async (req, res) => {
   const { userId, chatId } = req.body;
 
   if (!userId && !chatId) {
-    throw new ApiError(400,"All Fields are required!!");
+    throw new ApiError(400, "All Fields are required!!");
   }
 
   const isChatExists = await Chat.findOne({ _id: chatId });
 
   if (!isChatExists) {
-    throw new ApiError(304,"Chat doesn't exist!!");
+    throw new ApiError(304, "Chat doesn't exist!!");
   } else if (!isChatExists.members.includes(userId)) {
     throw new ApiError(400, "member doesn't exist!!");
   } else {
     const chat = await Chat.findByIdAndUpdate(
       chatId,
       {
-        $pull : {members : userId}
+        $pull: { members: userId },
       },
       {
         new: true,
@@ -231,16 +232,23 @@ const  removeFronGroup = asyncHandler(async (req, res) => {
       .populate("isAdmin", "-password -refreshToken")
       .populate("members", "-password -refreshToken");
 
-      return res
+    return res
       .status(200)
-      .json(new ApiResponse(200, chat, "User is successfully removed from the group!!"))
+      .json(
+        new ApiResponse(
+          200,
+          chat,
+          "User is successfully removed from the group!!"
+        )
+      );
   }
+});
 
-})
-
-
-
-
-export { accessChat, fetchAllChats, createGroup, renameChat, addToGroup, removeFronGroup };
-
-
+export {
+  accessChat,
+  fetchAllChats,
+  createGroup,
+  renameChat,
+  addToGroup,
+  removeFronGroup,
+};
