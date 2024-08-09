@@ -61,5 +61,32 @@ const sendMsg = asyncHandler(async (req, res) => {
 
 });
 
+const getMsg = asyncHandler(async (req, res) => {
+    const {chatId} = req.params;
 
-export {sendMsg};
+    if(!chatId){
+        throw new ApiError(404, "Didn't find ChatId!!");
+    }
+
+    const msg = await Message.find({chatId})
+    .populate({
+        path : "sender",
+        model : "User",
+        select : "username fullName avatar -password -refreshToken",
+    })
+    .populate({
+        path : "chatId",
+        model : "Chat"
+    });
+
+    if(!msg){
+        throw new ApiError(404, "Couldn't get the Message!!")
+    };
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200, msg, "retrive message successfully!!"))
+
+}) 
+
+export {sendMsg, getMsg};
