@@ -171,4 +171,76 @@ const renameChat = asyncHandler(async (req, res) => {
       new ApiResponse(200, updatedChat, "Update the chat name successfully !!")
     );
 });
-export { accessChat, fetchAllChats, createGroup, renameChat };
+
+const addToGroup = asyncHandler(async (req, res) => {
+  const { userId, chatId } = req.body;
+
+  if (!userId && !chatId) {
+    throw new ApiError(400, "All Fields are required!!");
+  }
+
+  const isChatExists = await Chat.findOne({ _id: chatId });
+
+  if (!isChatExists) {
+    throw new ApiError(404,"Chat doesn't exist!!");
+  } else if (isChatExists.members.includes(userId)) {
+    throw new ApiError(404,"member already exist!!");
+  } else {
+    const chat = await Chat.findByIdAndUpdate(
+      chatId,
+      {
+        $push: { members: userId },
+      },
+      {
+        new: true,
+      }
+    )
+      .populate("isAdmin", "-password -refreshToken")
+      .populate("members", "-password -refreshToken");
+
+      return res
+      .status(200)
+      .json(new ApiResponse(200, chat, "User is successfully added in the group!!"))
+  }
+});
+
+const  removeFronGroup = asyncHandler(async (req, res) => {
+
+  const { userId, chatId } = req.body;
+
+  if (!userId && !chatId) {
+    throw new ApiError(400,"All Fields are required!!");
+  }
+
+  const isChatExists = await Chat.findOne({ _id: chatId });
+
+  if (!isChatExists) {
+    throw new ApiError(304,"Chat doesn't exist!!");
+  } else if (!isChatExists.members.includes(userId)) {
+    throw new ApiError(400, "member doesn't exist!!");
+  } else {
+    const chat = await Chat.findByIdAndUpdate(
+      chatId,
+      {
+        $pull : {members : userId}
+      },
+      {
+        new: true,
+      }
+    )
+      .populate("isAdmin", "-password -refreshToken")
+      .populate("members", "-password -refreshToken");
+
+      return res
+      .status(200)
+      .json(new ApiResponse(200, chat, "User is successfully removed from the group!!"))
+  }
+
+})
+
+
+
+
+export { accessChat, fetchAllChats, createGroup, renameChat, addToGroup, removeFronGroup };
+
+
