@@ -5,5 +5,5 @@ import { getMsg, sendMsg } from "../controllers/message.controller.js";
 const router = Router();
 
 router.route("/sendMsg").post(verifyJwt, sendMsg);
-router.route("/getMsg").post(verifyJwt, getMsg);
+router.route("/:chatId").post(verifyJwt, getMsg);
 export default router;

@@ -24,9 +24,7 @@ const sendMsg = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Error while creating message !!")
   }
 
-  let populateMsg = await createMsg
-  .populate("sender", "username fullName avatar")
-  .populate({
+  let populateMsg = await (await createMsg.populate("sender", "username fullName avatar")).populate({
     path : "chatId",
     select : "name isGroup members",
     model : "Chat",
@@ -57,7 +55,7 @@ const sendMsg = asyncHandler(async (req, res) => {
 
   return res
   .status(200)
-  .json(new ApiResponse(200, updateChat, "Message is sent!!"))
+  .json(new ApiResponse(200, {updateChat, populateMsg}, "Message is sent!!"))
 
 });
 
@@ -72,7 +70,7 @@ const getMsg = asyncHandler(async (req, res) => {
     .populate({
         path : "sender",
         model : "User",
-        select : "username fullName avatar -password -refreshToken",
+        select : "username fullName avatar",
     })
     .populate({
         path : "chatId",
