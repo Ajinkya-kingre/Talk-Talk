@@ -66,36 +66,4 @@ This is the backend for a real-time chat application backend built using Node.js
     npm start
     ```
 
-## Folder Structure
-
-├── controllers
-│ ├── chat.controller.js
-│ ├── message.controller.js
-│ └── user.controller.js
-├──DB
-│ ├── index.js 
-├── middlewares
-│ ├── auth.middleware.js
-│ ├── multer.middleware.js
-├── models
-│ ├── chat.model.js
-│ ├── message.model.js
-│ └── user.model.js
-├── routes
-│ ├── chat.route.js
-│ ├── message.route.js
-│ └── user.route.js
-├── utils
-│ └── ApiError.js
-│ └── ApiResponse.js
-│ └── asyncHandler.js
-│ └── cloudinary.js
-│ └── getUsers.js
-├── app.js
-├── constants.js
-├── index.js
-└── .env
-
-
-
 
